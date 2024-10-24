@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Bancos</title>
+  <style>
+   body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+.contenedor {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  max-width: 1200px;
+
+}
+/* nuevo contenedor */
+.contenedorTotal{ 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  width: 150%;
+  margin: 10px;
+
+}
+
+.formulario {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  width: 30%;
+  margin: 10px;
+}
+.formulario h2 {
+  margin-top: 0;
+}
+div {
+  margin-bottom: 15px;
+}
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+select, input[type="text"], input[type="number"], input[type="radio"], textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+textarea {
+  height: 80px;
+  resize: vertical;
+}
+button {
+  background-color: #f71e1e;
+  color: #fff;
+  border: none;
+  margin-top: 12px;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+button:hover {
+  background-color: #0056b3;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+table, th, td {
+  border: 1px solid #ddd;
+}
+th, td {
+  padding: 10px;
+  text-align: left;
+}
+th {
+  background-color: #f4f4f4;
+}
+/* Media Query para el diseño responsive */
+@media (max-width:1062px) {
+  .contenedor  {
+    display: flex; /* Asegura que el contenedor sea flexbox */
+    flex-direction: column; /* Coloca los elementos uno debajo del otro */
+    width: 90%;
+    align-items: center;
+  }
+  
+  .contenedor .formulario {
+    width: 100%; /* Ocupa el 100% del ancho del contenedor */
+    margin: 18px; /* Opcional: agrega espacio entre los bloques */
+  }
+  .contenedorTotal{
+    display: flex; /* Asegura que el contenedor sea flexbox */
+    flex-direction: column; /* Coloca los elementos uno debajo del otro */
+    width: 100%;
+    align-items: center;
+  }
+  .contenedorTotal div {
+    width: 80%; /* Ocupa el 100% del ancho del contenedor */
+  }
+
+  
+  /* Añade un estilo general para todos los hijos directos de .contenedor */
+  .contenedor > * {
+    width: 100%; /* Asegura que cada bloque ocupe todo el ancho */ /* Elimina márgenes laterales que podrían reducir el ancho */
+  }
+
+} /* Estilos anteriores */
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <!-- Crear Bancos -->
+    <div class="formulario" id="crearBancoFormulario">
+      <h2>Crear Banco</h2>
+      <label for="nombreBanco">Nombre del Banco:</label>
+      <input type="text" id="nombreBanco" placeholder="Ingrese el nombre del banco">
+      <label for="saldoBanco">Saldo Inicial:</label>
+      <input type="number" id="saldoBanco" placeholder="Ingrese el saldo inicial" min="0" step="0.01">
+      <button type="button" onclick="crearBanco()">Crear Banco</button>
+    </div>
+
+    <!-- Crear Mensajeros -->
+    <div class="formulario" id="crearMensajeroFormulario">
+      <h2>Crear Mensajero</h2>
+      <label for="nombreMensajero">Nombre del Mensajero:</label>
+      <input type="text" id="nombreMensajero" placeholder="Ingrese el nombre del mensajero">
+      <button type="button" onclick="crearMensajero()">Crear Mensajero</button>
+    </div>
+
+    <!-- Crear Clientes -->
+    <div class="formulario" id="crearClienteFormulario">
+      <h2>Crear Cliente</h2>
+      <label for="nombreCliente">Nombre del Cliente:</label>
+      <input type="text" id="nombreCliente" placeholder="Ingrese el nombre del cliente">
+      <label for="deudaCliente">Deuda Inicial:</label>
+      <input type="number" id="deudaCliente" placeholder="Ingrese la deuda inicial" min="0" step="0.01">
+      <button type="button" onclick="crearCliente()">Crear Cliente</button>
+    </div>
+
+    <!-- Agregar Deuda a Cliente Existente -->
+    <div class="formulario" id="agregarDeudaFormulario">
+      <h2>Agregar Deuda a Cliente</h2>
+      <label for="selectClienteDeuda">Selecciona un Cliente:</label>
+      <select id="selectClienteDeuda"></select>
+      <label for="montoDeuda">Monto a Agregar:</label>
+      <input type="number" id="montoDeuda" placeholder="Introduce la cantidad" min="0" step="0.01" required>
+      <button type="button" onclick="agregarDeuda()">Agregar Deuda</button>
+    </div>
+
+    <!-- Transacciones -->
+    <div class="formulario" id="transaccionFormularioContenedor">
+      <h2>Realizar Transacción</h2>
+      <label for="tipoTransaccion">Tipo de Transacción:</label>
+      <select id="tipoTransaccion" onchange="actualizarFormularioTransaccion()">
+        <option value="pago">Pago</option>
+        <option value="retiro">Retiro</option>
+        <option value="recarga">Recarga</option>
+      </select>
+      <div id="seccionCliente">
+        <label for="selectCliente">Selecciona un Cliente:</label>
+        <select id="selectCliente"></select>
+      </div>
+      <div id="seccionMensajero" style="display: none;">
+        <label for="selectMensajero">Selecciona un Mensajero:</label>
+        <select id="selectMensajero"></select>
+      </div>
+      <label for="selectBanco">Selecciona un Banco:</label>
+      <select id="selectBanco"></select>
+      <label for="monto">Cantidad:</label>
+      <input type="number" id="monto" placeholder="Introduce la cantidad" min="0" step="0.01" required>
+      <label for="observacion">Observación:</label>
+      <textarea id="observacion" placeholder="Ingrese una observación"></textarea>
+      <button type="button" onclick="procesarTransaccion()">Realizar Transacción</button>
+    </div>
+  </div>
+
+  <div class="contenedorTotal">
+    <div class="formulario">
+      <h2>Saldos de Bancos</h2>
+      <table id="tablaSaldos">
+        <thead>
+          <tr>
+            <th>Banco</th>
+            <th>Saldo</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="totalSaldoBancos">
+        <h3>Total de Saldos en Bancos: $<span id="totalSaldoBanco">0</span></h3>
+      </div>
+    </div>
+
+    <div class="formulario">
+      <h2>Deudas de Clientes</h2>
+      <table id="tablaDeudas">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Deuda</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div id="totalDeudaClientes">
+        <h3>Total de Deudas de Clientes: $<span id="totalDeudaCliente">0</span></h3>
+      </div>
+    </div>
+
+    <div class="formulario">
+      <button type="button" onclick="exportarTransacciones('pago')">Exportar Pagos</button>
+      <button type="button" onclick="exportarTransacciones('retiro')">Exportar Retiros</button>
+      <button type="button" onclick="exportarTransacciones('recarga')">Exportar Recargas</button>
+    </div>
+  </div>
+
+  <script>
+    const bancos = {};
+    const mensajeros = {};
+    const clientes = {};
+    const deudas = {};
+    const transacciones = [];
+
+    function crearBanco() {
+      const nombre = document.getElementById('nombreBanco').value.trim();
+      const saldo = parseFloat(document.getElementById('saldoBanco').value);
+      if (nombre && !isNaN(saldo) && saldo >= 0) {
+        bancos[nombre] = saldo;
+        actualizarBancoSelect();
+        actualizarTablaSaldos();
+        document.getElementById('nombreBanco').value = '';
+        document.getElementById('saldoBanco').value = '';
+      } else {
+        alert('Por favor ingrese un nombre de banco válido y un saldo inicial.');
+      }
+    }
+
+    function crearMensajero() {
+      const nombre = document.getElementById('nombreMensajero').value.trim();
+      if (nombre) {
+        mensajeros[nombre] = nombre;
+        actualizarMensajeroSelect();
+        document.getElementById('nombreMensajero').value = '';
+      } else {
+        alert('Por favor ingrese un nombre de mensajero válido.');
+      }
+    }
+
+    function crearCliente() {
+      const nombre = document.getElementById('nombreCliente').value.trim();
+      const deuda = parseFloat(document.getElementById('deudaCliente').value);
+      if (nombre && !isNaN(deuda) && deuda >= 0) {
+        clientes[nombre] = nombre;
+        deudas[nombre] = deuda;
+        actualizarClienteSelect();
+        actualizarClienteSelectDeuda();
+        actualizarTablaDeudas();
+        document.getElementById('nombreCliente').value = '';
+        document.getElementById('deudaCliente').value = '';
+      } else {
+        alert('Por favor ingrese un nombre de cliente válido y una deuda inicial.');
+      }
+    }
+
+    function actualizarBancoSelect() {
+      const selectBanco = document.getElementById('selectBanco');
+      selectBanco.innerHTML = '';
+      for (const banco in bancos) {
+        const opcion = document.createElement('option');
+        opcion.value = banco;
+        opcion.textContent = banco;
+        selectBanco.appendChild(opcion);
+      }
+      actualizarTablaSaldos();
+    }
+
+    function actualizarMensajeroSelect() {
+      const selectMensajero = document.getElementById('selectMensajero');
+      selectMensajero.innerHTML = '';
+      for (const mensajero in mensajeros) {
+        const opcion = document.createElement('option');
+        opcion.value = mensajero;
+        opcion.textContent = mensajero;
+        selectMensajero.appendChild(opcion);
+      }
+    }
+
+    function actualizarClienteSelect() {
+      const selectCliente = document.getElementById('selectCliente');
+      selectCliente.innerHTML = '';
+      for (const cliente in clientes) {
+        const opcion = document.createElement('option');
+        opcion.value = cliente;
+        opcion.textContent = cliente;
+        selectCliente.appendChild(opcion);
+      }
+    }
+
+    function actualizarClienteSelectDeuda() {
+      const selectClienteDeuda = document.getElementById('selectClienteDeuda');
+      selectClienteDeuda.innerHTML = '';
+      for (const cliente in clientes) {
+        const opcion = document.createElement('option');
+        opcion.value = cliente;
+        opcion.textContent = cliente;
+        selectClienteDeuda.appendChild(opcion);
+      }
+    }
+
+    function actualizarTablaSaldos() {
+      const cuerpoTablaSaldo = document.getElementById('tablaSaldos').querySelector('tbody');
+      cuerpoTablaSaldo.innerHTML = '';
+      let saldoTotal = 0;
+      for (const banco in bancos) {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `<td>${banco}</td><td>$${bancos[banco]}</td>`;
+        cuerpoTablaSaldo.appendChild(fila);
+        saldoTotal += bancos[banco];
+      }
+      document.getElementById('totalSaldoBanco').textContent = saldoTotal;
+    }
+
+    function actualizarTablaDeudas() {
+      const cuerpoTablaDeuda = document.getElementById('tablaDeudas').querySelector('tbody');
+      cuerpoTablaDeuda.innerHTML = '';
+      let deudaTotal = 0;
+      for (const cliente in deudas) {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `<td>${cliente}</td><td>$${deudas[cliente]}</td>`;
+        cuerpoTablaDeuda.appendChild(fila);
+        deudaTotal += deudas[cliente];
+      }
+      document.getElementById('totalDeudaCliente').textContent = deudaTotal;
+    }
+
+    function agregarDeuda() {
+      const clienteSeleccionado = document.getElementById('selectClienteDeuda').value;
+      const montoDeuda = parseFloat(document.getElementById('montoDeuda').value);
+      if (clienteSeleccionado && !isNaN(montoDeuda) && montoDeuda > 0) {
+        deudas[clienteSeleccionado] += montoDeuda;
+        actualizarTablaDeudas();
+        alert(`Deuda de $${montoDeuda} agregada al cliente ${clienteSeleccionado}.`);
+      } else {
+        alert('Por favor seleccione un cliente y asegúrese de que el monto es válido.');
+      }
+      document.getElementById('montoDeuda').value = '';
+    }
+
+    function actualizarFormularioTransaccion() {
+      const tipoTransaccion = document.getElementById('tipoTransaccion').value;
+      document.getElementById('seccionCliente').style.display = tipoTransaccion === 'pago' ? 'block' : 'none';
+      document.getElementById('seccionMensajero').style.display = tipoTransaccion === 'retiro' || tipoTransaccion === 'recarga' ? 'block' : 'none';
+    }
+
+    function procesarTransaccion() {
+      const tipoTransaccion = document.getElementById('tipoTransaccion').value;
+      const bancoSeleccionado = document.getElementById('selectBanco').value;
+      const monto = parseFloat(document.getElementById('monto').value);
+      const observacion = document.getElementById('observacion').value;
+
+      if (tipoTransaccion === 'recarga') {
+        const mensajeroSeleccionado = document.getElementById('selectMensajero').value;
+        if (bancoSeleccionado && !isNaN(monto) && monto > 0) {
+          bancos[bancoSeleccionado] += monto;
+          transacciones.push({ tipo: 'recarga', mensajero: mensajeroSeleccionado, banco: bancoSeleccionado, monto, observacion });
+          actualizarTablaSaldos();
+          alert(`Recarga realizada de $${monto} al banco ${bancoSeleccionado}.`);
+        } else {
+          alert('Por favor ingrese un monto válido.');
+        }
+      } else if (tipoTransaccion === 'retiro') {
+        const mensajeroSeleccionado = document.getElementById('selectMensajero').value;
+        if (bancoSeleccionado && !isNaN(monto) && monto > 0 && bancos[bancoSeleccionado] >= monto) {
+          bancos[bancoSeleccionado] -= monto;
+          transacciones.push({ tipo: 'retiro', mensajero: mensajeroSeleccionado, banco: bancoSeleccionado, monto, observacion });
+          actualizarTablaSaldos();
+          alert(`Retiro realizado de $${monto} del banco ${bancoSeleccionado}.`);
+        } else {
+          alert('Por favor ingrese un monto válido y asegúrese de que hay suficiente saldo en el banco.');
+        }
+      } else if (tipoTransaccion === 'pago') {
+        const clienteSeleccionado = document.getElementById('selectCliente').value;
+        if (bancoSeleccionado && !isNaN(monto) && monto > 0 && deudas[clienteSeleccionado] >= monto) {
+          bancos[bancoSeleccionado] += monto;
+          deudas[clienteSeleccionado] -= monto;
+          transacciones.push({ tipo: 'pago', cliente: clienteSeleccionado, banco: bancoSeleccionado, monto, observacion });
+          actualizarTablaSaldos();
+          actualizarTablaDeudas();
+          alert(`Pago realizado de $${monto} por el cliente ${clienteSeleccionado}.`);
+        } else {
+          alert('Por favor ingrese un monto válido y asegúrese de que la deuda del cliente es suficiente.');
+        }
+      }
+
+      document.getElementById('monto').value = '';
+      document.getElementById('observacion').value = '';
+    }
+
+    function exportarTransacciones(tipo) {
+      let csvContent = "data:text/csv;charset=utf-8," + "Tipo,Entidad,Banco,Monto,Observación\n";
+      transacciones.forEach(transaccion => {
+        if (transaccion.tipo === tipo) {
+          const fila = `${transaccion.tipo},${transaccion.cliente || transaccion.mensajero},${transaccion.banco},${transaccion.monto.toFixed(2)},${transaccion.observacion}`;
+          csvContent += fila + "\n";
+        }
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `${tipo}_transacciones.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
